@@ -20,4 +20,4 @@
 
 [![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=icepun&layout=donut)](https://github.com/icepun/github-readme-stats) ![Icepun's GitHub stats](https://github-readme-stats.vercel.app/api?username=icepun&show_icons=true&theme=radical)
 
-![Snake animation](https://raw.githubusercontent.com/{icepun}/{icepun}/output/github-contribution-grid-snake-dark.svg)
+![Snake animation](https://raw.githubusercontent.com/icepun/icepun/output/github-contribution-grid-snake-dark.svg)
