@@ -4,8 +4,6 @@
 
 - 🤝 A game project I developed [Camping Vlog Simulator 2024](https://store.steampowered.com/app/2665380/Camping_Vlog_Simulator_2024/)
 
-- 🌱 I’m currently learning **Data Engineering, Machine Learning**
-
 - ⚡ Another project I worked on [Gunsbytes](https://www.crazygames.com/game/gunsbytes-io)
 
 - 📫 How to reach me **y.berke_abanoz@hotmail.com**
