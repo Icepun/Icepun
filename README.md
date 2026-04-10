@@ -1,5 +1,5 @@
 ![MasterHead](https://media.licdn.com/dms/image/D4E16AQEExu5sM4kKcQ/profile-displaybackgroundimage-shrink_350_1400/0/1690577263541?e=1717632000&v=beta&t=AiU5j7sN_vamN_Z2v3R6g7KPpOf_cm3Sk6jTdYDrbkg)
-<h1 align="center">Hi 👋, I'm Yusuf Berke Abanoz</h1>
+<h1 align="center">Hi 👋, I'm Berke Abanoz</h1>
 <h3 align="center">Software Engineer</h3>
 
 - 🤝 A game project I developed [Camping Vlog Simulator 2024](https://store.steampowered.com/app/2665380/Camping_Vlog_Simulator_2024/)
