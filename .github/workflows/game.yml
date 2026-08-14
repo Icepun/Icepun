@@ -1,4 +1,4 @@
-name: generate puzzle svg
+name: generate game svg
 
 on:
   schedule:
@@ -49,8 +49,14 @@ jobs:
             exit 1
           fi
 
+      # Both variants are published every run so switching which one the
+      # README shows is a one-line change with no window where the footer
+      # points at a file that does not exist yet.
       - name: Generate SVGs
-        run: node tools/build-game.mjs --data contributions.json --out dist
+        run: |
+          node tools/build-merge.mjs --data contributions.json --out dist
+          node tools/build-game.mjs  --data contributions.json --out dist
+          ls -la dist
 
       - name: Configure git
         run: |
@@ -64,5 +70,5 @@ jobs:
           git rm -rf . > /dev/null
           mkdir images && mv /tmp/game/* images/
           git add images
-          git commit -m "chore: update puzzle SVGs" || echo "No changes to commit"
+          git commit -m "chore: update game SVGs" || echo "No changes to commit"
           git push --force origin game
