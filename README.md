@@ -1,10 +1,12 @@
-<a href="https://www.vitrumgames.com/">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="assets/hero-light.svg">
-    <img alt="Berke Abanoz — Unity developer at Vitrum Games, İzmir" src="assets/hero-light.svg" width="900">
-  </picture>
-</a>
+<!-- Not wrapped in a link: GitHub auto-links every <img>, and an <a> is not a
+     valid child of <picture>, so the browser hoists the image out of both the
+     picture and any enclosing anchor — leaving an empty picture and a
+     duplicate image. Theme-aware pictures have to stay unlinked here. -->
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/hero-light.svg">
+  <img alt="Berke Abanoz — Unity developer at Vitrum Games, İzmir" src="assets/hero-light.svg" width="900">
+</picture>
 
 <p align="center">
   I build and ship commercial games at <b>Vitrum Games</b> in İzmir, Türkiye.<br>
