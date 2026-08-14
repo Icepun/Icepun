@@ -1,0 +1,68 @@
+name: generate tower defense svg
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch contribution calendar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api graphql \
+            -f login='${{ github.repository_owner }}' \
+            -f query='
+              query($login: String!) {
+                user(login: $login) {
+                  contributionsCollection {
+                    contributionCalendar {
+                      weeks { contributionDays { contributionCount date } }
+                    }
+                  }
+                }
+              }' > contributions.json
+
+      # The generator falls back to synthetic data when it cannot read the
+      # calendar, which would quietly publish a graph that is not his. Fail
+      # here instead.
+      - name: Verify the calendar actually came back
+        run: |
+          weeks=$(jq '.data.user.contributionsCollection.contributionCalendar.weeks | length' contributions.json)
+          echo "weeks returned: $weeks"
+          if [ -z "$weeks" ] || [ "$weeks" -lt 40 ]; then
+            echo "::error::contribution calendar missing or too short — refusing to publish synthetic data"
+            cat contributions.json | head -c 2000
+            exit 1
+          fi
+
+      - name: Generate SVGs
+        run: node tools/build-game.mjs --data contributions.json --out dist
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Publish to the game branch
+        run: |
+          mkdir -p /tmp/game && mv dist/*.svg /tmp/game/
+          git checkout --orphan game
+          git rm -rf . > /dev/null
+          mkdir images && mv /tmp/game/* images/
+          git add images
+          git commit -m "chore: update tower defense SVGs" || echo "No changes to commit"
+          git push --force origin game
