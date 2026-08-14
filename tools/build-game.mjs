@@ -149,17 +149,31 @@ function loadData(file) {
   return weeks;
 }
 
-const levelOf = (count, max) => {
-  if (!count) return -1;
-  const q = count / Math.max(1, max);
-  return q > 0.66 ? 3 : q > 0.4 ? 2 : q > 0.15 ? 1 : 0;
-};
+/**
+ * Thresholds from the quartiles of active days, the way GitHub does it.
+ * Scaling against the single busiest day instead collapses an ordinary week
+ * into the dimmest bucket as soon as there is one outlier — measured on real
+ * data, that put 36% of cells on level 0 and 1% on level 3.
+ */
+function makeScale(values) {
+  const active = values.filter((v) => v > 0).sort((a, b) => a - b);
+  if (!active.length) return () => -1;
+  const q = (p) => active[Math.min(active.length - 1, Math.floor(active.length * p))];
+  const t1 = q(0.25), t2 = q(0.5), t3 = q(0.75);
+  return (count) => {
+    if (!count) return -1;
+    if (count > t3) return 3;
+    if (count > t2) return 2;
+    if (count > t1) return 1;
+    return 0;
+  };
+}
 
 // ─────────────────────────────────────────────── choreography
 function choreograph(weeks, path) {
   const flat = [];
   weeks.forEach((days, c) => days.forEach((v, r) => flat.push({ c, r, v })));
-  const max = Math.max(1, ...flat.map((f) => f.v));
+  const level = makeScale(flat.map((f) => f.v));
 
   // Towers sit on the busiest days, spread out so they do not clump.
   const towers = [];
@@ -191,13 +205,13 @@ function choreograph(weeks, path) {
     }
     waves.push({ spawn, killTime, killFrac, kx, ky, tower, fire: killTime - FLIGHT });
   }
-  return { towers, waves, max };
+  return { towers, waves, level };
 }
 
 // ─────────────────────────────────────────────── svg
 function render(theme, weeks, lane, path, plan, { animated = true } = {}) {
   const t = THEMES[theme];
-  const { towers, waves, max } = plan;
+  const { towers, waves, level } = plan;
   // Snapshot mode omits the moving pieces at source. Stripping them from the
   // finished string with a regex silently ate the tower emplacements too,
   // because <g> nests and a non-greedy match cannot see that.
@@ -220,7 +234,7 @@ function render(theme, weeks, lane, path, plan, { animated = true } = {}) {
   // ── grid
   const towerKey = new Set(towers.map((x) => `${x.c}:${x.r}`));
   weeks.forEach((days, c) => days.forEach((v, r) => {
-    const lv = levelOf(v, max);
+    const lv = level(v);
     const fill = lv < 0 ? t.empty : t.levels[lv];
     add(`<rect class="cell" x="${cellX(c)}" y="${cellY(r)}" width="${CELL}" height="${CELL}" rx="2" fill="${fill}"/>`);
   }));
