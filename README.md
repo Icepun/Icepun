@@ -10,7 +10,7 @@
 
 <p align="center">
   I build and ship commercial games at <b>Vitrum Games</b> in İzmir, Türkiye.<br>
-  <sub>Shipping since 2023 — three titles on Steam, one on Google Play, and an RPG / tower-defense in production for 2027.</sub>
+  <sub>Shipping since 2023 — three titles on Steam, one on iOS and Android, and an RPG / tower-defense in production for 2027.</sub>
 </p>
 
 ## Shipped
@@ -45,7 +45,7 @@
     <img src="assets/store/sweet-pixels.webp" width="410" alt="Sweet Pixels">
   </a><br>
   <b>Sweet Pixels</b><br>
-  <sub>Google Play · Puzzle</sub>
+  <sub>iOS · Android · Puzzle</sub>
 </td>
 </tr>
 </table>
@@ -58,7 +58,7 @@
 
 **Tools** &nbsp;`Blender` &nbsp;`Unreal` &nbsp;`Python` &nbsp;`TypeScript` &nbsp;`Next.js`
 
-**Shipping** &nbsp;`Steamworks` &nbsp;`Google Play` &nbsp;`AdMob`
+**Shipping** &nbsp;`Steamworks` &nbsp;`App Store` &nbsp;`Google Play` &nbsp;`AdMob`
 
 ## Open source
 

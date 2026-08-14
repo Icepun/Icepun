@@ -248,7 +248,7 @@ def build(theme_name):
     add(f'<g class="up" style="animation-delay:.62s"><path class="muted" d="{d_sub}"/></g>')
 
     # ---- proof line ----
-    proof = "4 titles shipped  ·  Steam  ·  Google Play  ·  Unity / C#"
+    proof = "4 titles shipped  ·  Steam  ·  App Store  ·  Google Play"
     d_pr, _ = med.path(proof, 13.5, X + 2, 252, tracking=.9, prec=0)
     add(f'<g class="up" style="animation-delay:.74s"><path class="muted" d="{d_pr}" opacity=".72"/></g>')
 
