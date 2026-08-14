@@ -310,7 +310,33 @@ function render(theme, sim, { animated = true } = {}) {
   const t = THEMES[theme];
   const { tiles, clears } = sim;
   const T = `${CYCLE}s`;
-  const kt = (a) => a.map((v) => n(Math.max(0, Math.min(1, v / CYCLE)))).join(";");
+
+  /**
+   * keyTimes, normalised and forced strictly increasing.
+   *
+   * SMIL rejects the entire animation if any two keyTimes are equal, and it
+   * fails silently — the element simply never moves. Coordinates round to one
+   * decimal for size, but timestamps need four: at one decimal, 5.6s and 5.8s
+   * both became 0.4 and killed 672 of 786 animations in the first build.
+   */
+  const kt = (a) => {
+    const EPS = 1e-4;
+    const out = [];
+    let prev = -1;
+    for (const v of a) {
+      let x = Number(Math.max(0, Math.min(1, v / CYCLE)).toFixed(4));
+      if (x <= prev) x = Number((prev + EPS).toFixed(4));
+      out.push(x);
+      prev = x;
+    }
+    // the track must end exactly at 1; walk back if the epsilon pushed past it
+    out[out.length - 1] = 1;
+    for (let i = out.length - 2; i >= 0 && out[i] >= out[i + 1]; i--) {
+      out[i] = Number((out[i + 1] - EPS).toFixed(4));
+    }
+    if (out[0] < 0) throw new Error("keyTimes underflow — too many keys for the cycle");
+    return out.join(";");
+  };
   const out = [];
   const add = (s) => out.push(s);
 
@@ -344,21 +370,31 @@ function render(theme, sim, { animated = true } = {}) {
     // Only y ever changes, so the y attribute is animated directly rather
     // than a translate transform — plain numbers instead of coordinate pairs
     // is worth roughly a third of the file.
-    const times = [], vals = [];
-    const pushKey = (time, row) => { times.push(time); vals.push(n(tileY(row))); };
+    // The landing bounce is an explicit overshoot keyframe, not an easing
+    // curve: SMIL requires every keySplines control point to sit inside
+    // [0,1], so the cubic-bezier overshoot that CSS allows is rejected
+    // outright — and rejected silently, leaving the tile frozen.
+    const times = [], vals = [], splines = [];
+    const HOLD = "0 0 1 1", FALL = ".45 0 .35 1", SETTLE_E = ".3 0 .2 1";
+    const pushKey = (time, row, ease) => {
+      times.push(time); vals.push(n(tileY(row)));
+      if (ease) splines.push(ease);
+    };
     pushKey(0, tl.moves[0].row);
     for (let i = 1; i < tl.moves.length; i++) {
       const m = tl.moves[i];
-      pushKey(Math.max(0.001, m.t), tl.moves[i - 1].row);
-      pushKey(Math.min(CYCLE, m.t + (tl.spawn === m.t ? 0.62 : 0.52)), m.row);
+      const drop = tl.spawn === m.t ? 0.58 : 0.46;
+      const down = m.row > tl.moves[i - 1].row;
+      pushKey(Math.max(0.001, m.t), tl.moves[i - 1].row, HOLD);
+      if (down && m.row < ROWS) {
+        // fall past the slot, then settle back into it
+        pushKey(m.t + drop, m.row + 0.22, FALL);
+        pushKey(m.t + drop + 0.16, m.row, SETTLE_E);
+      } else {
+        pushKey(Math.min(CYCLE, m.t + drop), m.row, FALL);
+      }
     }
-    pushKey(CYCLE, tl.moves[tl.moves.length - 1].row);
-
-    // hold, then a weighted fall that settles rather than stopping dead
-    const splines = [];
-    for (let i = 0; i < times.length - 1; i++) {
-      splines.push(vals[i] === vals[i + 1] ? "0 0 1 1" : ".34 .06 .2 1.2");
-    }
+    pushKey(CYCLE, tl.moves[tl.moves.length - 1].row, HOLD);
     const yAnim = `<animate attributeName="y" dur="${T}" repeatCount="indefinite" calcMode="spline" keyTimes="${kt(times)}" values="${vals.join(";")}" keySplines="${splines.join(";")}"/>`;
 
     const oTimes = [0], oVals = [tl.born > 0 ? 0 : 1];
@@ -374,7 +410,7 @@ function render(theme, sim, { animated = true } = {}) {
       // cleared tiles get a wrapper. Everything else stays a bare <use>.
       const s = tl.died;
       add(`<g class="fx"><g transform="translate(${n(x + CELL / 2)},${n(tileY(tl.moves[0].row) + CELL / 2)})">`);
-      add(`<animateTransform attributeName="transform" type="scale" additive="sum" dur="${T}" repeatCount="indefinite" calcMode="spline" keyTimes="${kt([0, Math.max(0.02, s - 0.26), Math.max(0.03, s - 0.08), s, CYCLE])}" values="1;1;1.3;.2;.2" keySplines="0 0 1 1;.2 .8 .3 1.4;.5 0 .9 .4;0 0 1 1"/>`);
+      add(`<animateTransform attributeName="transform" type="scale" additive="sum" dur="${T}" repeatCount="indefinite" calcMode="spline" keyTimes="${kt([0, Math.max(0.02, s - 0.26), Math.max(0.03, s - 0.08), s, CYCLE])}" values="1;1;1.3;.2;.2" keySplines="0 0 1 1;.2 .8 .3 1;.5 0 .9 .4;0 0 1 1"/>`);
       add(`<use href="#tl" x="${n(-CELL / 2)}" y="${n(-CELL / 2)}" fill="${t.tiles[tl.color]}">${oAnim}</use>`);
       add(`</g></g>`);
     } else {
@@ -457,11 +493,50 @@ if (snapAt) {
   }
 }
 
+/**
+ * Refuse to ship a file whose animations a browser will discard.
+ *
+ * Every failure mode here is silent at runtime: the SVG renders perfectly as
+ * a still image and simply never moves, which is exactly how the first build
+ * shipped.
+ */
+function assertPlayable(svg, label) {
+  const problems = [];
+  const tags = svg.match(/<animate[A-Za-z]*\b[^>]*>/g) || [];
+  for (const tag of tags) {
+    const kt = /keyTimes="([^"]+)"/.exec(tag);
+    const vals = /values="([^"]+)"/.exec(tag);
+    const spl = /keySplines="([^"]+)"/.exec(tag);
+    if (!kt || !vals) continue;
+    const T = kt[1].split(";").map(Number);
+    const V = vals[1].split(";");
+    if (T.some((x, i) => i && x <= T[i - 1])) problems.push(`keyTimes not increasing: ${kt[1]}`);
+    if (T[0] !== 0 || T[T.length - 1] !== 1) problems.push(`keyTimes must span 0..1: ${kt[1]}`);
+    if (T.length !== V.length) problems.push(`keyTimes/values length mismatch (${T.length} vs ${V.length})`);
+    if (spl) {
+      const groups = spl[1].split(";");
+      if (groups.length !== T.length - 1) problems.push(`keySplines count wrong`);
+      for (const g of groups) {
+        const cp = g.trim().split(/[\s,]+/).map(Number);
+        if (cp.length !== 4 || cp.some((v) => !(v >= 0 && v <= 1)))
+          problems.push(`keySplines control point outside 0..1: "${g.trim()}"`);
+      }
+    }
+  }
+  if (problems.length) {
+    console.error(`\n  ${label}: ${problems.length} broken animation(s), e.g.`);
+    for (const p of problems.slice(0, 3)) console.error(`    ${p}`);
+    throw new Error(`${label} would render as a still image`);
+  }
+  return tags.length;
+}
+
 for (const theme of ["dark", "light"]) {
   const svg = render(theme, sim);
   const file = join(outDir, `puzzle-${theme}.svg`);
+  const anims = assertPlayable(svg, `puzzle-${theme}.svg`);
   writeFileSync(file, svg, "utf8");
-  console.log(`  ${file}  ${svg.length.toLocaleString()} B`);
+  console.log(`  ${file}  ${svg.length.toLocaleString()} B  ${anims} animations verified`);
 }
 
 const still = sim.tiles.filter((t) => t.moves.length === 1 && t.born === 0 && t.died == null).length;
