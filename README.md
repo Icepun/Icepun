@@ -1,21 +1,83 @@
-![MasterHead](https://media.licdn.com/dms/image/D4E16AQEExu5sM4kKcQ/profile-displaybackgroundimage-shrink_350_1400/0/1690577263541?e=1717632000&v=beta&t=AiU5j7sN_vamN_Z2v3R6g7KPpOf_cm3Sk6jTdYDrbkg)
-<h1 align="center">Hi 👋, I'm Berke Abanoz</h1>
-<h3 align="center">Software Engineer</h3>
+<a href="https://www.vitrumgames.com/">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/hero-light.svg">
+    <img alt="Berke Abanoz — Unity developer at Vitrum Games, İzmir" src="assets/hero-light.svg" width="900">
+  </picture>
+</a>
 
-- 🤝 A game project I developed [Camping Vlog Simulator 2024](https://store.steampowered.com/app/2665380/Camping_Vlog_Simulator_2024/)
-
-- ⚡ Another project I worked on [Gunsbytes](https://www.crazygames.com/game/gunsbytes-io)
-
-- 📫 How to reach me **y.berke_abanoz@hotmail.com**
-
-<h3 align="left">Connect with me:</h3>
-<p align="left">
-<a href="https://linkedin.com/in/yusufberke" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="yusufberke" height="30" width="40" /></a>
+<p align="center">
+  I build and ship commercial games at <b>Vitrum Games</b> in İzmir, Türkiye.<br>
+  <sub>Shipping since 2023 — three titles on Steam, one on Google Play, and an RPG / tower-defense in production for 2027.</sub>
 </p>
 
-<h3 align="left">Languages and Tools:</h3>
-<p align="left"> <a href="https://www.blender.org/" target="_blank" rel="noreferrer"> <img src="https://download.blender.org/branding/community/blender_community_badge_white.svg" alt="blender" width="40" height="40"/> </a> <a href="https://www.w3schools.com/cs/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/csharp/csharp-original.svg" alt="csharp" width="40" height="40"/> </a> <a href="https://www.microsoft.com/en-us/sql-server" target="_blank" rel="noreferrer"> <img src="https://www.svgrepo.com/show/303229/microsoft-sql-server-logo.svg" alt="mssql" width="40" height="40"/> </a> <a href="https://pandas.pydata.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/2ae2a900d2f041da66e950e4d48052658d850630/icons/pandas/pandas-original.svg" alt="pandas" width="40" height="40"/> </a> <a href="https://www.photoshop.com/en" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/photoshop/photoshop-line.svg" alt="photoshop" width="40" height="40"/> </a> <a href="https://www.postgresql.org" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original-wordmark.svg" alt="postgresql" width="40" height="40"/> </a> <a href="https://www.python.org" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="python" width="40" height="40"/> </a> <a href="https://seaborn.pydata.org/" target="_blank" rel="noreferrer"> <img src="https://seaborn.pydata.org/_images/logo-mark-lightbg.svg" alt="seaborn" width="40" height="40"/> </a> <a href="https://www.tensorflow.org" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/tensorflow/tensorflow-icon.svg" alt="tensorflow" width="40" height="40"/> </a> <a href="https://unity.com/" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/unity3d/unity3d-icon.svg" alt="unity" width="40" height="40"/> </a> <a href="https://unrealengine.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/kenangundogan/fontisto/036b7eca71aab1bef8e6a0518f7329f13ed62f6b/icons/svg/brand/unreal-engine.svg" alt="unreal" width="40" height="40"/> </a> </p>
+## Shipped
 
-[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=icepun&layout=donut)](https://github.com/icepun/github-readme-stats) ![Icepun's GitHub stats](https://github-readme-stats.vercel.app/api?username=icepun&show_icons=true&theme=radical)
+<table>
+<tr>
+<td width="50%" align="center">
+  <a href="https://store.steampowered.com/app/3044520/Coffee_Express_Barista_Simulator/">
+    <img src="assets/store/coffee-express.webp" width="410" alt="Coffee Express: Barista Simulator">
+  </a><br>
+  <b>Coffee Express: Barista Simulator</b><br>
+  <sub>Steam · Barista sim · 2025</sub>
+</td>
+<td width="50%" align="center">
+  <a href="https://store.steampowered.com/app/4642730/Optical_Shop_Simulator/">
+    <img src="assets/store/optical-shop.webp" width="410" alt="Optical Shop Simulator">
+  </a><br>
+  <b>Optical Shop Simulator</b><br>
+  <sub>Steam · Management sim · Early Access</sub>
+</td>
+</tr>
+<tr>
+<td width="50%" align="center">
+  <a href="https://store.steampowered.com/app/2665380/Camping_Vlog_Simulator_2024/">
+    <img src="assets/store/camping-vlog.webp" width="410" alt="Camping Vlog Simulator 2024">
+  </a><br>
+  <b>Camping Vlog Simulator 2024</b><br>
+  <sub>Steam · Open-world sim · 2024</sub>
+</td>
+<td width="50%" align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.vitrumgames.sweetpixels">
+    <img src="assets/store/sweet-pixels.webp" width="410" alt="Sweet Pixels">
+  </a><br>
+  <b>Sweet Pixels</b><br>
+  <sub>Google Play · Puzzle</sub>
+</td>
+</tr>
+</table>
 
-![Snake animation](https://raw.githubusercontent.com/icepun/icepun/output/github-contribution-grid-snake.svg)
+**In production** — <b>Heirbound</b>, an RPG / tower-defense hybrid for PC and console. <code>2027</code>
+
+## Craft
+
+**Engine** &nbsp;`Unity` &nbsp;`C#` &nbsp;`URP` &nbsp;`Shader Graph` &nbsp;`HLSL`
+
+**Tools** &nbsp;`Blender` &nbsp;`Unreal` &nbsp;`Python` &nbsp;`TypeScript` &nbsp;`Next.js`
+
+**Shipping** &nbsp;`Steamworks` &nbsp;`Google Play` &nbsp;`AdMob`
+
+## Open source
+
+Most of my work ships as games rather than repositories — studio code lives at Vitrum Games. What is public here:
+
+- **[magicland3d-price-optimizer](https://github.com/Icepun/magicland3d-price-optimizer)** — pricing and production dashboard. Next.js + Electron desktop app and an Expo mobile app sharing one database and one costing engine.
+- **[Appodeal_TechArt_Test](https://github.com/Icepun/Appodeal_TechArt_Test)** — Unity tech-art test, written in ShaderLab and HLSL.
+- **[Prompt-Pixel-Case](https://github.com/Icepun/Prompt-Pixel-Case)** — Unity gameplay case study.
+- **[ziynet-legal](https://github.com/Icepun/ziynet-legal)** — static legal pages, [live on Pages](https://icepun.github.io/ziynet-legal/).
+
+## Elsewhere
+
+<a href="https://www.vitrumgames.com/">Vitrum Games</a> ·
+<a href="https://linkedin.com/in/yusufberke">LinkedIn</a> ·
+<a href="https://www.artstation.com/yusufberke">ArtStation</a> ·
+<a href="mailto:y.berke_abanoz@hotmail.com">y.berke_abanoz@hotmail.com</a>
+
+<br>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Icepun/Icepun/breakout/images/breakout-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Icepun/Icepun/breakout/images/breakout-light.svg">
+  <img alt="My contribution graph, played as a game of Breakout" src="https://raw.githubusercontent.com/Icepun/Icepun/breakout/images/breakout-light.svg">
+</picture>
