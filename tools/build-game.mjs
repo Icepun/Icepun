@@ -150,22 +150,28 @@ function loadData(file) {
 }
 
 /**
- * Thresholds from the quartiles of active days, the way GitHub does it.
- * Scaling against the single busiest day instead collapses an ordinary week
- * into the dimmest bucket as soon as there is one outlier — measured on real
- * data, that put 36% of cells on level 0 and 1% on level 3.
+ * Level from a doubling scale anchored on the median active day.
+ *
+ * Two simpler rules were tried against the real calendar and both collapsed
+ * it. A ratio to the busiest day puts 36% of cells on level 0 and 1% on level
+ * 3, because one outlier day sets the ceiling. Value quartiles fail the same
+ * way for a different reason: most active days share the same small count, so
+ * the quartile boundaries land on top of each other and nothing clears them.
+ *
+ * Doubling steps from the median sidestep both — the scale adapts to whatever
+ * the typical day looks like, and equal counts always get equal colour.
  */
 function makeScale(values) {
   const active = values.filter((v) => v > 0).sort((a, b) => a - b);
   if (!active.length) return () => -1;
-  const q = (p) => active[Math.min(active.length - 1, Math.floor(active.length * p))];
-  const t1 = q(0.25), t2 = q(0.5), t3 = q(0.75);
+  // Floored slightly above 1: on a calendar where the median active day is a
+  // single commit, anchoring exactly on it leaves level 0 unreachable and
+  // piles three quarters of the year onto level 1.
+  const anchor = Math.max(active[Math.floor(active.length / 2)] || 1, 1.35);
   return (count) => {
     if (!count) return -1;
-    if (count > t3) return 3;
-    if (count > t2) return 2;
-    if (count > t1) return 1;
-    return 0;
+    const step = Math.floor(Math.log2((count / anchor) * 2));
+    return Math.max(0, Math.min(3, step));
   };
 }
 
