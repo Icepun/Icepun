@@ -110,86 +110,68 @@ THEMES = {
     ),
 }
 
-# The shelf, as cartridges. Colours are each game's own signature; the motif
-# identifies the title, so the label carries the platform.
-# Genre words were tried here and rejected: the README scales the hero to 75%,
-# so a 10-character label like MANAGEMENT lands under 6px on screen. Platform
-# names are short enough to stay legible at the size the shelf actually is.
+# The shelf is the platforms he can deliver on, not the four titles — those
+# are already listed underneath, and repeating them here said "PC" three
+# times while claiming nothing about reach.
 CARTRIDGES = [
-    dict(key="coffee", ground="#C98A4B", ink="#3A2413", label="PC"),
-    dict(key="optical", ground="#3E6FB0", ink="#0E1D33", label="PC"),
-    dict(key="camping", ground="#4B7A5A", ink="#16261C", label="PC"),
-    dict(key="sweet", ground="#E87BA8", ink="#5A1B36", label="MOBILE"),
+    dict(key="pc", ground="#4E7FC4", ink="#0B1A2E", label="PC"),
+    dict(key="mobile", ground="#3FA98C", ink="#0A2820", label="MOBILE"),
+    dict(key="console", ground="#8A6BD1", ink="#1A1030", label="CONSOLE"),
+    dict(key="web", ground="#E0A33C", ink="#33230A", label="WEB"),
 ]
 
 
-def motif(key, cx, cy, ink):
-    """Solid vector motif in a ~34px box.
+def motif(key, cx, cy, ink, ground):
+    """Solid platform glyph in a ~34px box.
 
     Filled silhouettes rather than hairline strokes: at the size the shelf
     actually renders (the README scales the hero to 75%) a 2.6px stroke goes
-    muddy, while a solid shape keeps its outline.
+    muddy, while a solid shape keeps its outline. Cut-outs are painted in the
+    card's own ground rather than punched with evenodd, because overlapping
+    subpaths — the two grips of a gamepad against its body — would cancel each
+    other out under that rule.
     """
     F = f'fill="{ink}"'
-    R = f'fill="{ink}" fill-rule="evenodd"'
-    if key == "coffee":
+    G = f'fill="{ground}"'
+
+
+    if key == "pc":
         return (
-            # steam
-            f'<path d="M{cx-5.5},{cy-17.5} c2.4,2.2 2.4,4.2 0,6.4 M{cx+1.5},{cy-19} '
-            f'c2.4,2.2 2.4,4.2 0,6.4" fill="none" stroke="{ink}" stroke-width="2.2" '
-            f'stroke-linecap="round"/>'
-            # cup + handle punched through
-            f'<path d="M{cx-11.5},{cy-7} h18.6 v3.4 h3.4 a6.4,6.4 0 0 1 0,12.8 h-1.1 '
-            f'a10.4,10.4 0 0 1 -20.9,-1.6 z M{cx+7.1},{cy-0.2} v6.2 h1.5 '
-            f'a3.1,3.1 0 0 0 0,-6.2 z" {R}/>'
-            # saucer
-            f'<rect x="{cx-15}" y="{cy+10.4}" width="30" height="3.6" rx="1.8" {F}/>'
+            f'<rect x="{cx-15}" y="{cy-13}" width="30" height="20" rx="2.6" {F}/>'
+            f'<rect x="{cx-11.6}" y="{cy-9.6}" width="23.2" height="12" rx="1.2" {G} opacity=".45"/>'
+            f'<rect x="{cx-2.6}" y="{cy+7}" width="5.2" height="5" {F}/>'
+            f'<rect x="{cx-9.5}" y="{cy+11.4}" width="19" height="3.2" rx="1.6" {F}/>'
         )
-    if key == "optical":
-        # Lenses wider than they are deep — square ones read as goggles.
+    if key == "mobile":
         return (
-            f'<path d="M{cx-17},{cy-5.4} h13.9 a1.9,1.9 0 0 1 1.9,1.9 v.9 h2.4 v-.9 '
-            f'a1.9,1.9 0 0 1 1.9,-1.9 H{cx+17} a1.8,1.8 0 0 1 1.8,1.8 v5.6 '
-            f'a5.2,5.2 0 0 1 -5.2,5.2 h-3.1 a5.2,5.2 0 0 1 -5.2,-5.2 v-2.9 h-2.4 v2.9 '
-            f'a5.2,5.2 0 0 1 -5.2,5.2 h-3.1 a5.2,5.2 0 0 1 -5.2,-5.2 v-5.6 '
-            f'a1.8,1.8 0 0 1 1.8,-1.8 z '
-            f'M{cx-14.4},{cy-2.1} v4.1 a2.6,2.6 0 0 0 2.6,2.6 h3.1 a2.6,2.6 0 0 0 2.6,-2.6 '
-            f'v-4.1 z '
-            f'M{cx+6.1},{cy-2.1} v4.1 a2.6,2.6 0 0 0 2.6,2.6 h3.1 a2.6,2.6 0 0 0 2.6,-2.6 '
-            f'v-4.1 z" {R}/>'
+            f'<rect x="{cx-8.5}" y="{cy-15}" width="17" height="30" rx="3.4" {F}/>'
+            f'<rect x="{cx-6.1}" y="{cy-11.2}" width="12.2" height="20.4" rx="1.2" {G} opacity=".45"/>'
+            f'<rect x="{cx-2.6}" y="{cy-13.4}" width="5.2" height="1.5" rx=".75" {G} opacity=".8"/>'
+            f'<rect x="{cx-3.4}" y="{cy+10.8}" width="6.8" height="1.6" rx=".8" {G} opacity=".8"/>'
         )
-    if key == "camping":
-        # A tent, not a letter A: the door has to stay small enough that the
-        # canvas still reads as a solid mass, and the earlier guy-line stroke
-        # only registered as a stray mark at this size.
+    if key == "console":
         return (
-            f'<path d="M{cx},{cy-14.5} l14.4,24 a1.6,1.6 0 0 1 -1.4,2.5 H{cx-13} '
-            f'a1.6,1.6 0 0 1 -1.4,-2.5 z '
-            f'M{cx},{cy+1.6} L{cx-4.6},{cy+12} H{cx+4.6} Z" {R}/>'
-            f'<rect x="{cx-17}" y="{cy+12.6}" width="34" height="2.8" rx="1.4" {F}/>'
+            # body plus two grips, unioned under the default nonzero rule
+            f'<path d="M{cx-9},{cy-9} h18 a9,9 0 0 1 8.8,7.2 l1.8,9.4 '
+            f'a5.2,5.2 0 0 1 -10,2.7 l-1.6,-4.1 h-15.6 l-1.6,4.1 '
+            f'a5.2,5.2 0 0 1 -10,-2.7 l1.8,-9.4 a9,9 0 0 1 8.8,-7.2 z" {F}/>'
+            # d-pad
+            f'<rect x="{cx-10.4}" y="{cy-2.6}" width="8.4" height="2.6" rx="1.1" {G}/>'
+            f'<rect x="{cx-7.5}" y="{cy-5.5}" width="2.6" height="8.4" rx="1.1" {G}/>'
+            # face buttons
+            f'<circle cx="{cx+5.4}" cy="{cy-2.4}" r="1.9" {G}/>'
+            f'<circle cx="{cx+9.6}" cy="{cy+1.2}" r="1.9" {G}/>'
         )
-    if key == "sweet":
-        # a heart, actually built out of pixels
-        rows = [
-            "0110110",
-            "1111111",
-            "1111111",
-            "0111110",
-            "0011100",
-            "0001000",
-        ]
-        s, gap = 4.4, 0.55
-        w = len(rows[0]) * s
-        h = len(rows) * s
-        x0, y0 = cx - w / 2, cy - h / 2
-        out = []
-        for ry, row in enumerate(rows):
-            for rx, ch in enumerate(row):
-                if ch == "1":
-                    out.append(
-                        f'<rect x="{x0 + rx * s:.1f}" y="{y0 + ry * s:.1f}" '
-                        f'width="{s - gap:.2f}" height="{s - gap:.2f}" rx="1" {F}/>')
-        return "".join(out)
+    if key == "web":
+        return (
+            f'<rect x="{cx-15}" y="{cy-12}" width="30" height="24" rx="2.8" {F}/>'
+            f'<rect x="{cx-15}" y="{cy-4.6}" width="30" height="1.5" {G} opacity=".55"/>'
+            f'<circle cx="{cx-10.8}" cy="{cy-8.3}" r="1.5" {G}/>'
+            f'<circle cx="{cx-5.8}" cy="{cy-8.3}" r="1.5" {G}/>'
+            f'<circle cx="{cx-0.8}" cy="{cy-8.3}" r="1.5" {G}/>'
+            f'<rect x="{cx-10.8}" y="{cy+0.4}" width="21.6" height="2.2" rx="1.1" {G} opacity=".45"/>'
+            f'<rect x="{cx-10.8}" y="{cy+5.4}" width="13.6" height="2.2" rx="1.1" {G} opacity=".45"/>'
+        )
     return ""
 
 
@@ -305,11 +287,18 @@ def build(theme_name):
         f'fill="url(#swg)"/></g>')
 
     # ---- cartridge shelf ----
-    CW, CH, GAP = 74, 104, 15
+    CW, CH, GAP = 84, 104, 15
     n = len(CARTRIDGES)
     total = n * CW + (n - 1) * GAP
     sx = VW - 66 - total
     sy = 118  # centred against the text block (eyebrow 92 → proof 252)
+
+    LABEL_TRACK = 1.0
+    LABEL_SIZE = 11.0
+    while LABEL_SIZE > 7 and max(
+            med.width(c['label'], LABEL_SIZE, tracking=LABEL_TRACK)
+            for c in CARTRIDGES) > CW - 22:
+        LABEL_SIZE -= .1
 
     for i, c in enumerate(CARTRIDGES):
         x = sx + i * (CW + GAP)
@@ -325,18 +314,14 @@ def build(theme_name):
         add(f'<path d="M{x+13},{sy} h{CW-26} a13,13 0 0 1 13,13 v9 h-{CW} v-9 a13,13 0 0 1 13,-13 z" '
             f'fill="#FFFFFF" opacity=".14"/>')
         # motif
-        add(motif(c["key"], x + CW / 2, sy + 44, c["ink"]))
-        # Label bar. Genre names vary in length, so the type shrinks to fit
-        # the plate rather than the plate growing to fit the type — the shelf
-        # has to stay a shelf.
+        add(motif(c["key"], x + CW / 2, sy + 42, c["ink"], c["ground"]))
+        # Label bar. One type size for the whole shelf, sized off the longest
+        # label — shrinking each label independently left CONSOLE visibly
+        # smaller than PC beside it.
         bar_x, bar_w = x + 7, CW - 14
-        size, track = 11.0, 1.3
-        while size > 8.4 and med.width(c["label"], size, tracking=track) > bar_w - 8:
-            size -= .2
-            track = max(.5, track - .05)
-        lw = med.width(c["label"], size, tracking=track)
-        d_lb, _ = med.path(c["label"], size, x + CW / 2 - lw / 2, sy + CH - 17.5,
-                           tracking=track, prec=0)
+        lw = med.width(c["label"], LABEL_SIZE, tracking=LABEL_TRACK)
+        d_lb, _ = med.path(c["label"], LABEL_SIZE, x + CW / 2 - lw / 2, sy + CH - 17.5,
+                           tracking=LABEL_TRACK, prec=0)
         add(f'<rect x="{bar_x}" y="{sy+CH-30}" width="{bar_w}" height="18" rx="6" '
             f'fill="{c["ink"]}" opacity=".22"/>')
         add(f'<path d="{d_lb}" fill="{c["ink"]}" opacity=".88"/>')
