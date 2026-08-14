@@ -182,7 +182,7 @@ def build(theme_name):
 
     add(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {VW} {VH}" '
         f'width="{VW}" height="{VH}" role="img" '
-        f'aria-label="Berke Abanoz — Unity developer at Vitrum Games, Izmir, Turkey">')
+        f'aria-label="Berke Abanoz — game developer and technical artist at Vitrum Games, Izmir, Turkey">')
 
     # ---- defs: the drifting glow ----
     add('<defs>')
@@ -246,7 +246,7 @@ def build(theme_name):
     X = 66
 
     # ---- eyebrow ----
-    ey, w = med.path("UNITY DEVELOPER", 15, X + 22, 92, tracking=3.4, prec=0)
+    ey, w = med.path("GAME DEVELOPER / TECHNICAL ARTIST", 15, X + 22, 92, tracking=3.4, prec=0)
     add(f'<g class="up" style="animation-delay:.05s">'
         f'<rect x="{X}" y="80.5" width="11" height="11" rx="2.5" class="acc"/>'
         f'<path class="acc" d="{ey}"/></g>')

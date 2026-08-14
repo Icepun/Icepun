@@ -5,7 +5,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="assets/hero-light.svg">
-  <img alt="Berke Abanoz — Unity developer at Vitrum Games, İzmir" src="assets/hero-light.svg" width="900">
+  <img alt="Berke Abanoz — game developer and technical artist at Vitrum Games, İzmir" src="assets/hero-light.svg" width="900">
 </picture>
 
 <p align="center">
