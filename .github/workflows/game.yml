@@ -54,7 +54,8 @@ jobs:
       # points at a file that does not exist yet.
       - name: Generate SVGs
         run: |
-          node tools/build-merge.mjs --data contributions.json --out dist
+          node tools/build-garden.mjs --data contributions.json --out dist
+          node tools/build-merge.mjs  --data contributions.json --out dist
           node tools/build-game.mjs  --data contributions.json --out dist
           ls -la dist
 
