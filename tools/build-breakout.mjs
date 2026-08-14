@@ -37,13 +37,25 @@ const PADDLE_Y = 158, PADDLE_W = 150, PADDLE_H = 10;
 const BALL_R = 6.4;
 const H = 192;
 
-const CYCLE = 14;
+const CYCLE = 21;   // demolition, level clear, rebuild — one whole round
 const LAUNCH = 0.45;
-const PLAY_END = 11.6;      // ball retires
-const RESPAWN = 11.6;       // wall rebuilds
-const REBUILD = 1.5;
+// The ball takes 15s to clear 90% of the wall and another 13 to hunt the
+// stragglers, which is a long, empty tail to watch. It plays until the wall is
+// mostly down, then the rest goes together — the level-complete beat every
+// game of this kind uses.
+const PLAY_END = 16.2;
+const SWEEP = 16.3;         // survivors clear together
+const SWEEP_SPAN = 0.9;
+const RESPAWN = 18.0;       // wall rebuilds
+const REBUILD = 1.9;
 
-const SPEED = 402;          // px per second
+const SPEED = 605;          // px per second
+// One ball, one paddle. A second ball halves the time to clear the wall, but
+// a single paddle physically cannot cover both: the check measured 6 of 34
+// returns bouncing off empty space, one of them 256px past the paddle edge.
+const BALLS = [
+  { x: 0.42, angle: -Math.PI * 0.30, delay: 0 },
+];
 const STEP = 1 / 240;
 
 const brickX = (c) => PAD_X + c * PX;
@@ -128,30 +140,50 @@ function makeScale(values) {
 function play(grid) {
   const alive = grid.map((col) => col.map(() => true));
   const hits = [];                       // {t, c, r}
-  const path = [];                       // {t, x, y}
   const paddle = [];                     // {t, x}
   const catches = [];                    // paddle interceptions
 
-  let x = W * 0.5, y = PADDLE_Y - 40;
-  let a = -Math.PI * 0.28;               // up and to the right
-  let vx = Math.cos(a) * SPEED, vy = Math.sin(a) * SPEED;
-  let px = x;                            // paddle centre
-
-  path.push({ t: LAUNCH, x, y });
+  // Every interception is checked; a bounce off empty air is a build failure.
+  const balls = BALLS.map((b, i) => {
+    const a = b.angle;
+    return {
+      i, x: b.x * W, y: PADDLE_Y - 40,
+      vx: Math.cos(a) * SPEED, vy: Math.sin(a) * SPEED,
+      born: LAUNCH + b.delay,
+      path: [{ t: LAUNCH + b.delay, x: b.x * W, y: PADDLE_Y - 40 }],
+    };
+  });
+  let px = W * 0.5;
   paddle.push({ t: 0, x: px });
 
   const minX = PAD_X + BALL_R, maxX = W - PAD_X - BALL_R;
 
   for (let t = LAUNCH; t < PLAY_END; t += STEP) {
+    // aim at whichever ball reaches the paddle line first
+    let target = px, soonest = Infinity;
+    for (const b of balls) {
+      if (t < b.born || b.vy <= 0) continue;
+      const eta = (PADDLE_Y - b.y) / b.vy;
+      if (eta >= 0 && eta < soonest) { soonest = eta; target = b.x + b.vx * eta; }
+    }
+    const aimOff = Math.sin(t * 0.9) * (PADDLE_W * 0.30);
+    px += (target + aimOff - px) * 0.11;
+    px = Math.max(PADDLE_W / 2 + PAD_X, Math.min(W - PAD_X - PADDLE_W / 2, px));
+    if (t - paddle[paddle.length - 1].t > 0.09) paddle.push({ t, x: px });
+
+    for (const ball of balls) {
+      if (t < ball.born) continue;
+      step(ball, t);
+    }
+  }
+  for (const b of balls) b.path.push({ t: PLAY_END, x: b.x, y: b.y });
+  paddle.push({ t: PLAY_END, x: px });
+  return { hits, balls, paddle, catches };
+
+  function step(ball, t) {
+    let { x, y, vx, vy } = ball;
     x += vx * STEP;
     y += vy * STEP;
-
-    // the paddle chases with a lag, which reads as reaction rather than magnet
-    px += (x - px) * 0.018;   // deliberately slow: a paddle that centres
-                          // the ball every time produces a vertical
-                          // ping-pong and a rally 125px wide
-    px = Math.max(PADDLE_W / 2 + PAD_X, Math.min(W - PAD_X - PADDLE_W / 2, px));
-    if (paddle.length === 0 || t - paddle[paddle.length - 1].t > 0.09) paddle.push({ t, x: px });
 
     let bounced = false;
 
@@ -167,7 +199,7 @@ function play(grid) {
     if (vy > 0 && y > PADDLE_Y - BALL_R) {
       y = PADDLE_Y - BALL_R;
       const reach = Math.abs(x - px) - PADDLE_W / 2;
-      catches.push({ t, gap: reach });
+      catches.push({ t, gap: reach, ball: ball.i });
       const off = Math.max(-1, Math.min(1, (x - px) / (PADDLE_W / 2)));
       const ang = -Math.PI / 2 + off * 0.95;
       vx = Math.cos(ang) * SPEED;
@@ -186,7 +218,10 @@ function play(grid) {
           // bounce clears 17 of 371 over a rally — invisible against a wall
           // this wide. A small cluster reads as force and actually eats the
           // wall down, without touching how the ball itself behaves.
-          const blast = [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, -1]];
+          const blast = [];
+          for (let dc = -2; dc <= 2; dc++)
+            for (let dr = -2; dr <= 2; dr++)
+              if (Math.abs(dc) + Math.abs(dr) <= 3) blast.push([dc, dr]);
           for (const [dc, dr] of blast) {
             const bc = c + dc, br = r + dr;
             if (bc < 0 || bc >= COLS || br < 0 || br >= ROWS) continue;
@@ -204,11 +239,9 @@ function play(grid) {
       }
     }
 
-    if (bounced) path.push({ t, x, y });
+    ball.x = x; ball.y = y; ball.vx = vx; ball.vy = vy;
+    if (bounced) ball.path.push({ t, x, y });
   }
-  path.push({ t: PLAY_END, x, y });
-  paddle.push({ t: PLAY_END, x: px });
-  return { hits, path, paddle, catches };
 }
 
 // ─────────────────────────────────────────────── svg
@@ -291,8 +324,10 @@ function render(theme, grid, sim, { animated = true } = {}) {
     const p0 = sim.paddle[0].x - PADDLE_W / 2;
     add(`<rect x="${n(p0)}" y="${PADDLE_Y}" width="${PADDLE_W}" height="${PADDLE_H}" rx="${PADDLE_H / 2}" fill="url(#padG)"/>`);
     add(`<rect x="${n(p0 + 7)}" y="${PADDLE_Y + 2}" width="${n(PADDLE_W - 14)}" height="2.6" rx="1.3" fill="${t.paddleRim}" opacity=".65"/>`);
-    add(`<circle cx="${n(sim.path[0].x)}" cy="${n(sim.path[0].y)}" r="15" fill="url(#ballHalo)"/>`);
-    add(`<circle cx="${n(sim.path[0].x)}" cy="${n(sim.path[0].y)}" r="${BALL_R}" fill="url(#ballG)"/>`);
+    for (const b of sim.balls) {
+      add(`<circle cx="${n(b.path[0].x)}" cy="${n(b.path[0].y)}" r="15" fill="url(#ballHalo)"/>`);
+      add(`<circle cx="${n(b.path[0].x)}" cy="${n(b.path[0].y)}" r="${BALL_R}" fill="url(#ballG)"/>`);
+    }
     add(`</svg>`);
     return o.join("");
   }
@@ -308,26 +343,24 @@ function render(theme, grid, sim, { animated = true } = {}) {
   add(`<animate attributeName="x" dur="${T}" repeatCount="indefinite" calcMode="linear" keyTimes="${kt([0, ...pt, CYCLE])}" values="${[pv[0], ...pv, pv[pv.length - 1]].map((v) => n(Number(v) + 7)).join(";")}"/>`);
   add(`</rect></g>`);
 
-  // ── ball: one keyframe per bounce, straight lines in between
-  const bt = sim.path.map((p) => p.t);
-  const bx = sim.path.map((p) => n(p.x));
-  const by = sim.path.map((p) => n(p.y));
-  const times = kt([0, ...bt, CYCLE]);
-  const xs = [bx[0], ...bx, bx[bx.length - 1]].join(";");
-  const ys = [by[0], ...by, by[by.length - 1]].join(";");
-  const fade = `<animate attributeName="opacity" dur="${T}" repeatCount="indefinite" keyTimes="${kt([0, LAUNCH - 0.2, LAUNCH, PLAY_END, PLAY_END + 0.35, CYCLE - 0.5, CYCLE])}" values="0;0;1;1;0;0;0"/>`;
-
-  add(`<g class="fx">`);
-  add(`<circle r="15" fill="url(#ballHalo)" cx="${bx[0]}" cy="${by[0]}">`);
-  add(`<animate attributeName="cx" dur="${T}" repeatCount="indefinite" calcMode="linear" keyTimes="${times}" values="${xs}"/>`);
-  add(`<animate attributeName="cy" dur="${T}" repeatCount="indefinite" calcMode="linear" keyTimes="${times}" values="${ys}"/>`);
-  add(fade);
-  add(`</circle>`);
-  add(`<circle r="${BALL_R}" fill="url(#ballG)" cx="${bx[0]}" cy="${by[0]}">`);
-  add(`<animate attributeName="cx" dur="${T}" repeatCount="indefinite" calcMode="linear" keyTimes="${times}" values="${xs}"/>`);
-  add(`<animate attributeName="cy" dur="${T}" repeatCount="indefinite" calcMode="linear" keyTimes="${times}" values="${ys}"/>`);
-  add(fade);
-  add(`</circle></g>`);
+  // ── balls: one keyframe per bounce, straight lines in between
+  for (const b of sim.balls) {
+    const bt = b.path.map((q) => q.t);
+    const bx = b.path.map((q) => n(q.x));
+    const by = b.path.map((q) => n(q.y));
+    const times = kt([0, ...bt, CYCLE]);
+    const xs = [bx[0], ...bx, bx[bx.length - 1]].join(";");
+    const ys = [by[0], ...by, by[by.length - 1]].join(";");
+    const on = b.path[0].t;
+    const fade = `<animate attributeName="opacity" dur="${T}" repeatCount="indefinite" keyTimes="${kt([0, Math.max(0.01, on - 0.2), on, PLAY_END, PLAY_END + 0.35, CYCLE])}" values="0;0;1;1;0;0"/>`;
+    const track = (extra) =>
+      `<animate attributeName="cx" dur="${T}" repeatCount="indefinite" calcMode="linear" keyTimes="${times}" values="${xs}"/>` +
+      `<animate attributeName="cy" dur="${T}" repeatCount="indefinite" calcMode="linear" keyTimes="${times}" values="${ys}"/>` + extra;
+    add(`<g class="fx">`);
+    add(`<circle r="15" fill="url(#ballHalo)" cx="${bx[0]}" cy="${by[0]}">${track(fade)}</circle>`);
+    add(`<circle r="${BALL_R}" fill="url(#ballG)" cx="${bx[0]}" cy="${by[0]}">${track(fade)}</circle>`);
+    add(`</g>`);
+  }
 
   const mono = `font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" letter-spacing="1.5"`;
   add(`<text x="${PAD_X}" y="${H - 10}" ${mono} fill="${t.label}">A YEAR OF COMMITS, ONE BRICK AT A TIME</text>`);
@@ -379,6 +412,15 @@ const grid = Array.from({ length: COLS }, (_, c) =>
   Array.from({ length: ROWS }, (_, r) => level(weeks[c][r])));
 const sim = play(grid);
 
+// Whatever the ball did not reach goes in the level-clear sweep.
+{
+  const struck = new Set(sim.hits.map((h) => `${h.c}:${h.r}`));
+  for (let c = 0; c < COLS; c++)
+    for (let r = 0; r < ROWS; r++)
+      if (!struck.has(`${c}:${r}`))
+        sim.hits.push({ t: SWEEP + (c / COLS) * SWEEP_SPAN, c, r, core: false, swept: true });
+}
+
 // A bounce off empty air ruins the illusion faster than any other flaw here.
 const misses = sim.catches.filter((c) => c.gap > 0);
 if (misses.length) {
@@ -414,18 +456,21 @@ function snapshot(theme, time) {
   o.push(`<rect x="${n(px - PADDLE_W / 2)}" y="${PADDLE_Y}" width="${PADDLE_W}" height="${PADDLE_H}" rx="${PADDLE_H / 2}" fill="url(#padG)"/>`);
   o.push(`<rect x="${n(px - PADDLE_W / 2 + 7)}" y="${PADDLE_Y + 2}" width="${n(PADDLE_W - 14)}" height="2.6" rx="1.3" fill="${t.paddleRim}" opacity=".65"/>`);
 
-  let bx = sim.path[0].x, by = sim.path[0].y;
-  for (let i = 1; i < sim.path.length; i++) {
-    const a = sim.path[i - 1], b = sim.path[i];
-    if (time >= a.t && time <= b.t) {
-      const k = (time - a.t) / Math.max(1e-6, b.t - a.t);
-      bx = a.x + (b.x - a.x) * k; by = a.y + (b.y - a.y) * k;
-      break;
+  for (const ball of sim.balls) {
+    if (time < ball.path[0].t) continue;
+    let bx = ball.path[0].x, by = ball.path[0].y;
+    for (let i = 1; i < ball.path.length; i++) {
+      const a = ball.path[i - 1], b = ball.path[i];
+      if (time >= a.t && time <= b.t) {
+        const k = (time - a.t) / Math.max(1e-6, b.t - a.t);
+        bx = a.x + (b.x - a.x) * k; by = a.y + (b.y - a.y) * k;
+        break;
+      }
+      bx = b.x; by = b.y;
     }
-    bx = b.x; by = b.y;
+    o.push(`<circle cx="${n(bx)}" cy="${n(by)}" r="15" fill="url(#ballHalo)"/>`);
+    o.push(`<circle cx="${n(bx)}" cy="${n(by)}" r="${BALL_R}" fill="url(#ballG)"/>`);
   }
-  o.push(`<circle cx="${n(bx)}" cy="${n(by)}" r="15" fill="url(#ballHalo)"/>`);
-  o.push(`<circle cx="${n(bx)}" cy="${n(by)}" r="${BALL_R}" fill="url(#ballG)"/>`);
   o.push(`<text x="${n(W - PAD_X)}" y="14" text-anchor="end" font-family="monospace" font-size="9" fill="${t.label}">t = ${time.toFixed(1)}s</text>`);
   o.push(`</svg>`);
   return o.join("");
@@ -455,6 +500,7 @@ for (const theme of ["dark", "light"]) {
   writeFileSync(file, svg, "utf8");
   console.log(`  ${file}  ${svg.length.toLocaleString()} B  ${anims} animations verified`);
 }
-console.log(`  ${sim.hits.length} bricks broken, ${sim.path.length} bounces, ${CYCLE}s loop`);
+console.log(`  ${sim.hits.length} bricks broken, ` +
+  `${sim.balls.reduce((a, b) => a + b.path.length, 0)} bounces across ${sim.balls.length} balls, ${CYCLE}s loop`);
 console.log(`  ${sim.catches.length} clean paddle catches, ` +
   `closest edge margin ${Math.min(...sim.catches.map((c) => -c.gap)).toFixed(1)}px`);
