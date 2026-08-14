@@ -6,8 +6,13 @@
 #glow{animation:drift 19s ease-in-out infinite}
 @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(70px,-26px)}}
 
-.wm path{opacity:0;animation:ink .5s ease-out forwards}
-@keyframes ink{to{opacity:1}}
+/* Every entrance below is authored as an enhancement, never as the base
+   state: no rule sets opacity:0 on its own. animation-fill-mode:both still
+   holds the hidden `from` frame through the delay, so the stagger survives,
+   but a renderer that ignores CSS animation shows the finished hero rather
+   than a blank plate. */
+.wm path{animation:ink .5s ease-out both}
+@keyframes ink{from{opacity:0}to{opacity:1}}
 
 .stroke{fill:none;stroke:#E08A00;stroke-width:1.1;
   stroke-dasharray:1400;stroke-dashoffset:1400;
@@ -15,10 +20,10 @@
 @keyframes draw{to{stroke-dashoffset:0}}
 @keyframes fadeout{to{opacity:0}}
 
-.up{opacity:0;animation:up .62s cubic-bezier(.22,1,.36,1) forwards}
+.up{animation:up .62s cubic-bezier(.22,1,.36,1) both}
 @keyframes up{from{opacity:0;transform:translateY(11px)}to{opacity:1;transform:none}}
 
-.cart{opacity:0;animation:slide .72s cubic-bezier(.22,1,.36,1) forwards}
+.cart{animation:slide .72s cubic-bezier(.22,1,.36,1) both}
 @keyframes slide{from{opacity:0;transform:translateX(46px) rotate(9deg)}
   to{opacity:1;transform:none}}
 .bob{animation:bob 4.6s ease-in-out infinite}
