@@ -78,7 +78,7 @@ Most of my work ships as games rather than repositories — studio code lives at
 <br>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Icepun/Icepun/game/images/merge-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Icepun/Icepun/game/images/merge-light.svg">
-  <img alt="My contribution graph merging itself — matching days fuse into fewer, brighter marks" src="https://raw.githubusercontent.com/Icepun/Icepun/game/images/merge-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Icepun/Icepun/game/images/garden-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Icepun/Icepun/game/images/garden-light.svg">
+  <img alt="My contribution graph grown as a garden — every day I committed opens into a bloom" src="https://raw.githubusercontent.com/Icepun/Icepun/game/images/garden-light.svg">
 </picture>
