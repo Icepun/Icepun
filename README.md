@@ -10,10 +10,10 @@
 
 <p align="center">
   I build and ship commercial games at <b>Vitrum Games</b> in İzmir, Türkiye.<br>
-  <sub>Shipping since 2023 — three titles on Steam, one on iOS and Android, and an RPG / tower-defense in production for 2027.</sub>
+  <sub>10+ games shipped and 20+ developed, across Steam, Google Play and the App Store. An RPG / tower-defense is in production for 2027.</sub>
 </p>
 
-## Shipped
+## Selected work
 
 <table>
 <tr>
@@ -65,8 +65,6 @@
 Most of my work ships as games rather than repositories — studio code lives at Vitrum Games. What is public here:
 
 - **[magicland3d-price-optimizer](https://github.com/Icepun/magicland3d-price-optimizer)** — pricing and production dashboard. Next.js + Electron desktop app and an Expo mobile app sharing one database and one costing engine.
-- **[Appodeal_TechArt_Test](https://github.com/Icepun/Appodeal_TechArt_Test)** — Unity tech-art test, written in ShaderLab and HLSL.
-- **[Prompt-Pixel-Case](https://github.com/Icepun/Prompt-Pixel-Case)** — Unity gameplay case study.
 - **[ziynet-legal](https://github.com/Icepun/ziynet-legal)** — static legal pages, [live on Pages](https://icepun.github.io/ziynet-legal/).
 
 ## Elsewhere

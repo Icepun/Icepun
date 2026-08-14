@@ -124,34 +124,72 @@ CARTRIDGES = [
 
 
 def motif(key, cx, cy, ink):
-    """Flat vector motif, drawn around (cx, cy) in a ~34px box."""
-    o = f'fill="none" stroke="{ink}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"'
+    """Solid vector motif in a ~34px box.
+
+    Filled silhouettes rather than hairline strokes: at the size the shelf
+    actually renders (the README scales the hero to 75%) a 2.6px stroke goes
+    muddy, while a solid shape keeps its outline.
+    """
+    F = f'fill="{ink}"'
+    R = f'fill="{ink}" fill-rule="evenodd"'
     if key == "coffee":
         return (
-            f'<path d="M{cx-11},{cy-8} h19 v12 a9.5,9.5 0 0 1 -19,0 z" {o}/>'
-            f'<path d="M{cx+8},{cy-5} h4.5 a5,5 0 0 1 0,10 h-1" {o}/>'
-            f'<path d="M{cx-14},{cy+11} h26" {o}/>'
-            f'<path d="M{cx-5},{cy-14} v-4 M{cx+1},{cy-14} v-6" {o}/>'
+            # steam
+            f'<path d="M{cx-5.5},{cy-17.5} c2.4,2.2 2.4,4.2 0,6.4 M{cx+1.5},{cy-19} '
+            f'c2.4,2.2 2.4,4.2 0,6.4" fill="none" stroke="{ink}" stroke-width="2.2" '
+            f'stroke-linecap="round"/>'
+            # cup + handle punched through
+            f'<path d="M{cx-11.5},{cy-7} h18.6 v3.4 h3.4 a6.4,6.4 0 0 1 0,12.8 h-1.1 '
+            f'a10.4,10.4 0 0 1 -20.9,-1.6 z M{cx+7.1},{cy-0.2} v6.2 h1.5 '
+            f'a3.1,3.1 0 0 0 0,-6.2 z" {R}/>'
+            # saucer
+            f'<rect x="{cx-15}" y="{cy+10.4}" width="30" height="3.6" rx="1.8" {F}/>'
         )
     if key == "optical":
+        # Lenses wider than they are deep — square ones read as goggles.
         return (
-            f'<circle cx="{cx-8}" cy="{cy+2}" r="7.2" {o}/>'
-            f'<circle cx="{cx+8}" cy="{cy+2}" r="7.2" {o}/>'
-            f'<path d="M{cx-1},{cy+1} h2" {o}/>'
-            f'<path d="M{cx-15},{cy-1} l-4,-5 M{cx+15},{cy-1} l4,-5" {o}/>'
+            f'<path d="M{cx-17},{cy-5.4} h13.9 a1.9,1.9 0 0 1 1.9,1.9 v.9 h2.4 v-.9 '
+            f'a1.9,1.9 0 0 1 1.9,-1.9 H{cx+17} a1.8,1.8 0 0 1 1.8,1.8 v5.6 '
+            f'a5.2,5.2 0 0 1 -5.2,5.2 h-3.1 a5.2,5.2 0 0 1 -5.2,-5.2 v-2.9 h-2.4 v2.9 '
+            f'a5.2,5.2 0 0 1 -5.2,5.2 h-3.1 a5.2,5.2 0 0 1 -5.2,-5.2 v-5.6 '
+            f'a1.8,1.8 0 0 1 1.8,-1.8 z '
+            f'M{cx-14.4},{cy-2.1} v4.1 a2.6,2.6 0 0 0 2.6,2.6 h3.1 a2.6,2.6 0 0 0 2.6,-2.6 '
+            f'v-4.1 z '
+            f'M{cx+6.1},{cy-2.1} v4.1 a2.6,2.6 0 0 0 2.6,2.6 h3.1 a2.6,2.6 0 0 0 2.6,-2.6 '
+            f'v-4.1 z" {R}/>'
         )
     if key == "camping":
+        # A tent, not a letter A: the door has to stay small enough that the
+        # canvas still reads as a solid mass, and the earlier guy-line stroke
+        # only registered as a stray mark at this size.
         return (
-            f'<path d="M{cx},{cy-13} L{cx+15},{cy+11} H{cx-15} Z" {o}/>'
-            f'<path d="M{cx},{cy-13} L{cx},{cy+11}" {o}/>'
-            f'<path d="M{cx-6},{cy+11} L{cx},{cy-1} L{cx+6},{cy+11}" {o}/>'
+            f'<path d="M{cx},{cy-14.5} l14.4,24 a1.6,1.6 0 0 1 -1.4,2.5 H{cx-13} '
+            f'a1.6,1.6 0 0 1 -1.4,-2.5 z '
+            f'M{cx},{cy+1.6} L{cx-4.6},{cy+12} H{cx+4.6} Z" {R}/>'
+            f'<rect x="{cx-17}" y="{cy+12.6}" width="34" height="2.8" rx="1.4" {F}/>'
         )
     if key == "sweet":
-        p = []
-        for gx, gy in ((-1, -1), (0, -1), (1, -1), (-1, 0), (0, 0), (1, 0), (0, 1)):
-            x, y = cx + gx * 9 - 3.6, cy + gy * 9 - 3.6
-            p.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="7.2" height="7.2" rx="1.8" fill="{ink}"/>')
-        return "".join(p)
+        # a heart, actually built out of pixels
+        rows = [
+            "0110110",
+            "1111111",
+            "1111111",
+            "0111110",
+            "0011100",
+            "0001000",
+        ]
+        s, gap = 4.4, 0.55
+        w = len(rows[0]) * s
+        h = len(rows) * s
+        x0, y0 = cx - w / 2, cy - h / 2
+        out = []
+        for ry, row in enumerate(rows):
+            for rx, ch in enumerate(row):
+                if ch == "1":
+                    out.append(
+                        f'<rect x="{x0 + rx * s:.1f}" y="{y0 + ry * s:.1f}" '
+                        f'width="{s - gap:.2f}" height="{s - gap:.2f}" rx="1" {F}/>')
+        return "".join(out)
     return ""
 
 
@@ -247,10 +285,17 @@ def build(theme_name):
     d_sub, _ = semi.path(sub, 17.5, X + 2, 224, tracking=.15, prec=0)
     add(f'<g class="up" style="animation-delay:.62s"><path class="muted" d="{d_sub}"/></g>')
 
-    # ---- proof line ----
-    proof = "4 titles shipped  ·  Steam  ·  App Store  ·  Google Play"
-    d_pr, _ = med.path(proof, 13.5, X + 2, 252, tracking=.9, prec=0)
-    add(f'<g class="up" style="animation-delay:.74s"><path class="muted" d="{d_pr}" opacity=".72"/></g>')
+    # ---- proof line: the record first, then where it shipped ----
+    stats = "10+ games shipped  ·  20+ games developed"
+    stores = "Steam · Google Play · iOS"
+    d_st, _ = semi.path(stats, 15, X + 2, 253, tracking=.2, prec=0)
+    sx_stores = X + 2 + semi.width(stats, 15, tracking=.2) + 26
+    d_so, _ = med.path(stores, 13.5, sx_stores, 253, tracking=.9, prec=0)
+    add(f'<g class="up" style="animation-delay:.74s">'
+        f'<path class="ink" d="{d_st}" opacity=".82"/>'
+        f'<rect x="{sx_stores - 15:.1f}" y="244" width="1.4" height="12" '
+        f'fill="{t["accent"]}" opacity=".5"/>'
+        f'<path class="muted" d="{d_so}" opacity=".85"/></g>')
 
     # ---- hairline + sweep ----
     ry = 288
