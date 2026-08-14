@@ -78,7 +78,7 @@ Most of my work ships as games rather than repositories — studio code lives at
 <br>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Icepun/Icepun/game/images/scene-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Icepun/Icepun/game/images/scene-light.svg">
-  <img alt="A garden grown from a year of commits — a flower swaying in the wind" src="https://raw.githubusercontent.com/Icepun/Icepun/game/images/scene-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Icepun/Icepun/game/images/breakout-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Icepun/Icepun/game/images/breakout-light.svg">
+  <img alt="Breakout played against my contribution graph — the ball breaks a year of commits" src="https://raw.githubusercontent.com/Icepun/Icepun/game/images/breakout-light.svg">
 </picture>
