@@ -69,7 +69,6 @@ Most of my work ships as games rather than repositories — studio code lives at
 
 ## Elsewhere
 
-<a href="https://icepun.github.io">icepun.github.io</a> ·
 <a href="https://www.vitrumgames.com/">Vitrum Games</a> ·
 <a href="https://linkedin.com/in/yusufberke">LinkedIn</a> ·
 <a href="https://www.artstation.com/yusufberke">ArtStation</a> ·
