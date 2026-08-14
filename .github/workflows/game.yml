@@ -1,4 +1,4 @@
-name: generate garden scene
+name: generate breakout board
 
 on:
   schedule:
@@ -52,9 +52,9 @@ jobs:
       # Only the scene is published. The grid experiments that came before it
       # still live in tools/ and can be swapped back by adding a line here,
       # but there is no reason to regenerate them daily.
-      - name: Generate the scene
+      - name: Generate the board
         run: |
-          node tools/build-scene.mjs --data contributions.json --out dist
+          node tools/build-breakout.mjs --data contributions.json --out dist
           ls -la dist
 
       - name: Configure git
@@ -69,5 +69,5 @@ jobs:
           git rm -rf . > /dev/null
           mkdir images && mv /tmp/game/* images/
           git add images
-          git commit -m "chore: update the garden scene" || echo "No changes to commit"
+          git commit -m "chore: update the breakout board" || echo "No changes to commit"
           git push --force origin game
